@@ -51,8 +51,6 @@ set(LIBLZ_LIB lz4-lib)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0  -ggdb -std=c++17 -fno-strict-aliasing")
-#set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall  -ggdb -std=c++17 -fno-strict-aliasing")
-#set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall -std=c++17 -fno-strict-aliasing")
 set(CMAKE_BUILD_TYPE "Debug")
 
 
@@ -60,7 +58,10 @@ set(CMAKE_BUILD_TYPE "Debug")
 #aux_source_directory(. DIR_SRCS)
 #add_executable(simple $(DIR_SRCS))
 
-add_executable(simple main.cpp)
+AUX_SOURCE_DIRECTORY(. DIR_SRCS)
+ADD_EXECUTABLE(simple ${DIR_SRCS})
+
+#add_executable(simple main.cpp)
 
 set(libs ${LIBCK_LIB}  ${LIBCITY_LIB} ${LIBLZ_LIB}  ${LIBX_LIB}  ${LIBZMQ_LIB} ${LIBICONV_LIB}  ${boost_libs})
 target_link_libraries(simple ${libs})
