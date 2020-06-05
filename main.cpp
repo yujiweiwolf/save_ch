@@ -43,15 +43,56 @@ long GetLocalTime() {
     return time;
 }
 
+int64_t GetTime(int64_t endTime) {
+    endTime = endTime / 1000;
+    struct tm _time_1; // 开始时间
+    struct tm _time_2; // 结束时间
+    memset(&_time_1, 0, sizeof (_time_1));
+    memset(&_time_2, 0, sizeof (_time_2));
+    long startTime = 19700101000000;
+    //long endTime = 20190101080000;
+    // 现在的日期　　c++时间是从1900年１月１日开始
+    _time_1.tm_year = startTime / (10000000000)-1900;
+    _time_1.tm_mon = startTime/ (100000000) % 100-1;
+    _time_1.tm_mday = startTime/ (1000000) % 100-1;
+    _time_1.tm_hour =startTime / (10000) % 100;
+    _time_1.tm_min = startTime / (100) % 100;
+    _time_1.tm_sec =startTime % 100;
+    // 结束时间
+    _time_2.tm_year =endTime/ (10000000000)-1900;
+    _time_2.tm_mon =endTime / (100000000) % 100-1;
+    _time_2.tm_mday =endTime / (1000000) % 100-1;
+    _time_2.tm_hour = endTime / (10000) % 100;
+    _time_2.tm_min =endTime / (100) % 100;
+    _time_2.tm_sec = endTime % 100;
+
+    time_t time_1 = mktime(&_time_1);
+    time_t time_2 = mktime(&_time_2);
+    //long remainSec = difftime(time_2,time_1) - 8 * 3600;
+    int64_t remainSec = difftime(time_2,time_1) + 7 * 3600;
+    return remainSec;
+    //printf("<%ld>\n", remainSec);
+}
+
+int64_t GetStamp(long endTime) {
+    endTime = endTime / 1000;
+    int64_t stamp = endTime % 1000000;
+}
+
 void TestQTick(Client& client) {
 
-    client.Execute("CREATE TABLE IF NOT EXISTS test.QTick (src Int8, dtype Int8, timestamp Int64, code String, name String, market Int8, pre_close Float64, upper_limit Float64, lower_limit Float64, bp Array(Float64), bv Array(Int64), ap Array(Float64), av Array(Int64), status Int8, new_price Float64, new_volume Int64, new_amount Float64, sum_volume Int64, sum_amount Float64, open Float64, high Float64, low Float64, avg_bid_price Float64, avg_ask_price Float64, new_bid_volume Int64, new_bid_amount Float64, new_ask_volume Int64, new_ask_amount Float64, open_interest Int64, pre_settle Float64, pre_open_interest Int64, close Float64, settle Float64, multiple Int64, price_step Float64, create_date Int32, list_date Int32, expire_date Int32, start_settle_date Int32, end_settle_date Int32, exercise_date Int32, exercise_price Float64, cp_flag Int8, underlying_code String, sum_bid_volume Int64, sum_bid_amount Float64, sum_ask_volume Int64, sum_ask_amount Float64, bid_order_volume Int64, bid_order_amount Float64, bid_cancel_volume Int64, bid_cancel_amount Float64, ask_order_volume Int64, ask_order_amount Float64, ask_cancel_volume Int64, ask_cancel_amount Float64, new_knock_count Int64, sum_knock_count Int64) ENGINE=MergeTree ORDER BY(timestamp, code, name)");
+    client.Execute("CREATE TABLE IF NOT EXISTS test.QTick (date Date, datetime DateTime, stamp Int64, src Int8, dtype Int8, timestamp Int64, code String, name String, market Int8, pre_close Float64, upper_limit Float64, lower_limit Float64, bp Array(Float64), bv Array(Int64), ap Array(Float64), av Array(Int64), status Int8, new_price Float64, new_volume Int64, new_amount Float64, sum_volume Int64, sum_amount Float64, open Float64, high Float64, low Float64, avg_bid_price Float64, avg_ask_price Float64, new_bid_volume Int64, new_bid_amount Float64, new_ask_volume Int64, new_ask_amount Float64, open_interest Int64, pre_settle Float64, pre_open_interest Int64, close Float64, settle Float64, multiple Int64, price_step Float64, create_date Int32, list_date Int32, expire_date Int32, start_settle_date Int32, end_settle_date Int32, exercise_date Int32, exercise_price Float64, cp_flag Int8, underlying_code String, sum_bid_volume Int64, sum_bid_amount Float64, sum_ask_volume Int64, sum_ask_amount Float64, bid_order_volume Int64, bid_order_amount Float64, bid_cancel_volume Int64, bid_cancel_amount Float64, ask_order_volume Int64, ask_order_amount Float64, ask_cancel_volume Int64, ask_cancel_amount Float64, new_knock_count Int64, sum_knock_count Int64) ENGINE=MergeTree ORDER BY(timestamp, code, name) PARTITION BY (date)");
     float time_use = 0;
     struct timeval start;
     struct timeval end;
     gettimeofday(&start, NULL);
-
+    cout << " CREATE TABLE IF NOT EXISTS test.QTick  "<< endl;
     Block block;
+    
+    auto date = std::make_shared<ColumnDate>();
+    auto datetime = std::make_shared<ColumnDateTime>();
+    auto stamp = std::make_shared<ColumnInt64>();
+    
     auto src = std::make_shared<ColumnInt8>();
     auto dtype = std::make_shared<ColumnInt8>();
     auto timestamp = std::make_shared<ColumnInt64>();
@@ -121,6 +162,15 @@ void TestQTick(Client& client) {
     for (auto &itor : list_qtick) {
         auto temp = x::Base64Decode(itor);
         auto it = flatbuffers::GetRoot<QTick>(temp.data());
+        
+        date->Append(GetTime(it->timestamp()));
+        datetime->Append(GetTime(it->timestamp()));
+        stamp->Append(GetStamp(it->timestamp()));        
+        
+//        date->Append(1586967567);
+//        datetime->Append(1586967567);
+//        stamp->Append(92020);
+        
         src->Append(it->src());
         dtype->Append(it->dtype());
         timestamp->Append(it->timestamp());
@@ -206,6 +256,10 @@ void TestQTick(Client& client) {
         new_knock_count->Append(it->new_knock_count());
         sum_knock_count->Append(it->sum_knock_count());
     }
+    
+    block.AppendColumn("date", date);
+    block.AppendColumn("datetime", datetime);
+    block.AppendColumn("stamp", stamp);
     
     block.AppendColumn("src", src);
     block.AppendColumn("dtype", dtype);
@@ -327,23 +381,26 @@ void TestReadQTick(Client& client) {
 //            }
 //            std::cerr << std::endl;
             
+//            //解析ColumnDateTime
+//            std::time_t t = block[1]->As<ColumnDateTime>()->At(i);
+//            std::cerr << std::asctime(std::localtime(&t)) << " " << std::endl;
             
             builder.Clear();            
             char code[16] = "";
             char name[16] = "";
             char underlying_code[16] = "";
             int Index = 0;
-            for (char ch : (*block[3]->As<ColumnString>())[i])	
+            for (char ch : (*block[6]->As<ColumnString>())[i])	
                     code[Index++] = ch;
             code[Index] = '\0';
             
             Index = 0;
-            for (char ch : (*block[4]->As<ColumnString>())[i])	
+            for (char ch : (*block[7]->As<ColumnString>())[i])	
                     name[Index++] = ch;
             name[Index] = '\0';
             
             Index = 0;
-            for (char ch : (*block[43]->As<ColumnString>())[i])	
+            for (char ch : (*block[46]->As<ColumnString>())[i])	
                     underlying_code[Index++] = ch;
             underlying_code[Index] = '\0';
       
@@ -355,9 +412,11 @@ void TestReadQTick(Client& client) {
             
             flatbuffers::Offset<flatbuffers::String> content_underlying_code;
             content_underlying_code = builder.CreateString(underlying_code, strlen(underlying_code) + 1);
-             
-            printf("<%ld> <%s> <%s>\n", (*block[2]->As<ColumnInt64>())[i], code, name);
-            auto bp = block[9]->As<ColumnArray>()->GetAsColumn(i);
+            
+            long timestamp = (*block[5]->As<ColumnInt64>())[i];
+            printf("<%ld> <%s> <%s> <%ld>\n", (*block[5]->As<ColumnInt64>())[i], code, name, timestamp);
+            
+            auto bp = block[12]->As<ColumnArray>()->GetAsColumn(i);
             cout << "bp ";
             double bp_value[bp->Size()];
             for (size_t j = 0; j < bp->Size(); ++j) {
@@ -367,7 +426,7 @@ void TestReadQTick(Client& client) {
             auto bp_vec = builder.CreateVector(bp_value, bp->Size());
             
             cout << "bv ";            
-            auto bv = block[10]->As<ColumnArray>()->GetAsColumn(i);
+            auto bv = block[13]->As<ColumnArray>()->GetAsColumn(i);
             int64_t bv_value[bv->Size()];
             for (size_t j = 0; j < bv->Size(); ++j) {
                 std::cerr << (int64_t)(*bv->As<ColumnInt64>())[j] << " ";
@@ -376,7 +435,7 @@ void TestReadQTick(Client& client) {
             auto bv_vec = builder.CreateVector(bv_value, bv->Size());            
                         
             cout << "ap ";            
-            auto ap = block[11]->As<ColumnArray>()->GetAsColumn(i);
+            auto ap = block[14]->As<ColumnArray>()->GetAsColumn(i);
             double ap_value[ap->Size()];
             for (size_t j = 0; j < ap->Size(); ++j) {
                 std::cerr << (double)(*ap->As<ColumnFloat64>())[j] << " ";
@@ -385,7 +444,7 @@ void TestReadQTick(Client& client) {
             auto ap_vec = builder.CreateVector(ap_value, ap->Size());            
                         
             cout << "av ";            
-            auto av = block[12]->As<ColumnArray>()->GetAsColumn(i);
+            auto av = block[15]->As<ColumnArray>()->GetAsColumn(i);
             int64_t av_value[av->Size()];
             for (size_t j = 0; j < av->Size(); ++j) {
                 std::cerr << (int64_t)(*av->As<ColumnInt64>())[j] << " ";
@@ -394,17 +453,18 @@ void TestReadQTick(Client& client) {
             auto av_vec = builder.CreateVector(av_value, av->Size());
             
             cout << endl;
-              
+            //continue;  
+            
             QTickBuilder msgData(builder);
-            msgData.add_src((*block[0]->As<ColumnInt8>())[i]);
-            msgData.add_dtype((*block[1]->As<ColumnInt8>())[i]);
-            msgData.add_timestamp((*block[2]->As<ColumnInt64>())[i]);
+            msgData.add_src((*block[3]->As<ColumnInt8>())[i]);
+            msgData.add_dtype((*block[4]->As<ColumnInt8>())[i]);
+            msgData.add_timestamp((*block[5]->As<ColumnInt64>())[i]);
             msgData.add_code(content_code);
             msgData.add_name(content_name);  
-            msgData.add_market((*block[5]->As<ColumnInt8>())[i]);
-            msgData.add_pre_close((*block[6]->As<ColumnFloat64>())[i]);
-            msgData.add_upper_limit((*block[7]->As<ColumnFloat64>())[i]);
-            msgData.add_lower_limit((*block[8]->As<ColumnFloat64>())[i]);            
+            msgData.add_market((*block[8]->As<ColumnInt8>())[i]);
+            msgData.add_pre_close((*block[9]->As<ColumnFloat64>())[i]);
+            msgData.add_upper_limit((*block[10]->As<ColumnFloat64>())[i]);
+            msgData.add_lower_limit((*block[11]->As<ColumnFloat64>())[i]);          
                       
             
             msgData.add_bp(bp_vec);    
@@ -412,51 +472,52 @@ void TestReadQTick(Client& client) {
             msgData.add_bp(ap_vec);
             msgData.add_bv(av_vec);
             
-            msgData.add_status((*block[13]->As<ColumnInt8>())[i]);
-            msgData.add_new_price((*block[14]->As<ColumnFloat64>())[i]);
-            msgData.add_new_volume((*block[15]->As<ColumnInt64>())[i]);
-            msgData.add_new_amount((*block[16]->As<ColumnFloat64>())[i]);
-            msgData.add_sum_volume((*block[17]->As<ColumnInt64>())[i]);
-            msgData.add_sum_amount((*block[18]->As<ColumnFloat64>())[i]);
-            msgData.add_open((*block[19]->As<ColumnFloat64>())[i]);
-            msgData.add_high((*block[20]->As<ColumnFloat64>())[i]);
-            msgData.add_low((*block[21]->As<ColumnFloat64>())[i]);
-            msgData.add_avg_bid_price((*block[22]->As<ColumnFloat64>())[i]);
-            msgData.add_avg_ask_price((*block[23]->As<ColumnFloat64>())[i]);
-            msgData.add_new_bid_volume((*block[24]->As<ColumnInt64>())[i]);
-            msgData.add_new_bid_amount((*block[25]->As<ColumnFloat64>())[i]);
-            msgData.add_new_ask_volume((*block[26]->As<ColumnInt64>())[i]);
-            msgData.add_new_ask_amount((*block[27]->As<ColumnFloat64>())[i]);
-            msgData.add_open_interest((*block[28]->As<ColumnInt64>())[i]);
-            msgData.add_pre_settle((*block[29]->As<ColumnFloat64>())[i]);
-            msgData.add_pre_open_interest((*block[30]->As<ColumnInt64>())[i]);
-            msgData.add_close((*block[31]->As<ColumnFloat64>())[i]);
-            msgData.add_settle((*block[32]->As<ColumnFloat64>())[i]);
-            msgData.add_multiple((*block[33]->As<ColumnInt64>())[i]);
-            msgData.add_price_step((*block[34]->As<ColumnFloat64>())[i]);
-            msgData.add_create_date((*block[35]->As<ColumnInt32>())[i]);
-            msgData.add_list_date((*block[36]->As<ColumnInt32>())[i]);
-            msgData.add_expire_date((*block[37]->As<ColumnInt32>())[i]);
-            msgData.add_start_settle_date((*block[38]->As<ColumnInt32>())[i]);
-            msgData.add_end_settle_date((*block[39]->As<ColumnInt32>())[i]);
-            msgData.add_exercise_date((*block[40]->As<ColumnInt32>())[i]);
-            msgData.add_exercise_price((*block[41]->As<ColumnFloat64>())[i]);
-            msgData.add_cp_flag((*block[42]->As<ColumnInt8>())[i]);
-            msgData.add_underlying_code(content_underlying_code); 
-            msgData.add_sum_bid_volume((*block[44]->As<ColumnInt64>())[i]);
-            msgData.add_sum_bid_amount((*block[45]->As<ColumnFloat64>())[i]);
-            msgData.add_sum_ask_volume((*block[46]->As<ColumnInt64>())[i]);
-            msgData.add_sum_ask_amount((*block[47]->As<ColumnFloat64>())[i]);
-            msgData.add_bid_order_volume((*block[48]->As<ColumnInt64>())[i]);
-            msgData.add_bid_order_amount((*block[49]->As<ColumnFloat64>())[i]);
-            msgData.add_bid_cancel_volume((*block[50]->As<ColumnInt64>())[i]);
-            msgData.add_bid_cancel_amount((*block[51]->As<ColumnFloat64>())[i]);
-            msgData.add_ask_order_volume((*block[52]->As<ColumnInt64>())[i]);
-            msgData.add_ask_order_amount((*block[53]->As<ColumnFloat64>())[i]);
-            msgData.add_ask_cancel_volume((*block[54]->As<ColumnInt64>())[i]);
-            msgData.add_ask_cancel_amount((*block[55]->As<ColumnFloat64>())[i]);
-            msgData.add_new_knock_count((*block[56]->As<ColumnInt64>())[i]);
-            msgData.add_sum_knock_count((*block[57]->As<ColumnInt64>())[i]);
+            msgData.add_status((*block[16]->As<ColumnInt8>())[i]);
+            msgData.add_new_price((*block[17]->As<ColumnFloat64>())[i]);
+            msgData.add_new_volume((*block[18]->As<ColumnInt64>())[i]);
+            msgData.add_new_amount((*block[19]->As<ColumnFloat64>())[i]);
+            msgData.add_sum_volume((*block[20]->As<ColumnInt64>())[i]);
+            msgData.add_sum_amount((*block[21]->As<ColumnFloat64>())[i]);
+            msgData.add_open((*block[22]->As<ColumnFloat64>())[i]);
+            msgData.add_high((*block[23]->As<ColumnFloat64>())[i]);
+            msgData.add_low((*block[24]->As<ColumnFloat64>())[i]);
+            msgData.add_avg_bid_price((*block[25]->As<ColumnFloat64>())[i]);
+            msgData.add_avg_ask_price((*block[26]->As<ColumnFloat64>())[i]);
+            msgData.add_new_bid_volume((*block[27]->As<ColumnInt64>())[i]);
+            msgData.add_new_bid_amount((*block[28]->As<ColumnFloat64>())[i]);
+            msgData.add_new_ask_volume((*block[29]->As<ColumnInt64>())[i]);
+            msgData.add_new_ask_amount((*block[30]->As<ColumnFloat64>())[i]);
+            msgData.add_open_interest((*block[31]->As<ColumnInt64>())[i]);
+            msgData.add_pre_settle((*block[32]->As<ColumnFloat64>())[i]);
+            msgData.add_pre_open_interest((*block[33]->As<ColumnInt64>())[i]);
+            msgData.add_close((*block[34]->As<ColumnFloat64>())[i]);
+            msgData.add_settle((*block[35]->As<ColumnFloat64>())[i]);
+            msgData.add_multiple((*block[36]->As<ColumnInt64>())[i]);
+            msgData.add_price_step((*block[37]->As<ColumnFloat64>())[i]);
+            msgData.add_create_date((*block[38]->As<ColumnInt32>())[i]);
+            msgData.add_list_date((*block[39]->As<ColumnInt32>())[i]);
+            msgData.add_expire_date((*block[40]->As<ColumnInt32>())[i]);
+            msgData.add_start_settle_date((*block[41]->As<ColumnInt32>())[i]);
+            msgData.add_end_settle_date((*block[42]->As<ColumnInt32>())[i]);
+            msgData.add_exercise_date((*block[43]->As<ColumnInt32>())[i]);
+            msgData.add_exercise_price((*block[44]->As<ColumnFloat64>())[i]);
+            msgData.add_cp_flag((*block[45]->As<ColumnInt8>())[i]);
+            msgData.add_underlying_code(content_underlying_code);
+            msgData.add_sum_bid_volume((*block[47]->As<ColumnInt64>())[i]);
+            msgData.add_sum_bid_amount((*block[48]->As<ColumnFloat64>())[i]);
+            msgData.add_sum_ask_volume((*block[49]->As<ColumnInt64>())[i]);
+            msgData.add_sum_ask_amount((*block[50]->As<ColumnFloat64>())[i]);
+            msgData.add_bid_order_volume((*block[51]->As<ColumnInt64>())[i]);
+            msgData.add_bid_order_amount((*block[52]->As<ColumnFloat64>())[i]);
+            msgData.add_bid_cancel_volume((*block[53]->As<ColumnInt64>())[i]);
+            msgData.add_bid_cancel_amount((*block[54]->As<ColumnFloat64>())[i]);
+            msgData.add_ask_order_volume((*block[55]->As<ColumnInt64>())[i]);
+            msgData.add_ask_order_amount((*block[56]->As<ColumnFloat64>())[i]);
+            msgData.add_ask_cancel_volume((*block[57]->As<ColumnInt64>())[i]);
+            msgData.add_ask_cancel_amount((*block[58]->As<ColumnFloat64>())[i]);
+            msgData.add_new_knock_count((*block[59]->As<ColumnInt64>())[i]);
+            msgData.add_sum_knock_count((*block[60]->As<ColumnInt64>())[i]);
+
             
             flatbuffers::Offset<QTick> tickData;
 //            tickData = msgData.Finish();
@@ -509,22 +570,23 @@ void GenericExample(Client& client) {
 
         auto name = std::make_shared<ColumnString>();
         name->Append("one");
-        name->Append("seven");
+        name->Append("sev");
         
         block.AppendColumn("id"  , id);
         block.AppendColumn("name", name);
-        
+        std::cout << std::time(nullptr) << " std::time(nullptr)" << endl;
+        long _time123 = std::time(nullptr);
         {
             auto date = std::make_shared<ColumnDate>();            
-            date->Append((1546300800));
-            date->Append((1546300800));
+            date->Append(1586967567);   //1546300800
+            date->Append(1586967567);
             block.AppendColumn("date", date);
         }    
         
         {
             auto datetime = std::make_shared<ColumnDateTime>();
-            datetime->Append(std::time(nullptr));
-            datetime->Append(std::time(nullptr));
+            datetime->Append(1586967567);
+            datetime->Append(1586967567);
             block.AppendColumn("datetime", datetime);
         }
         client.Insert("test.client", block);
@@ -539,7 +601,9 @@ void GenericExample(Client& client) {
                         << block[2]->As<ColumnDate>()->At(i) << " "  
                         << block[3]->As<ColumnDateTime>()->At(i) << " "      
                                 "\n";
-                auto col_id   = block[2]->As<ColumnDate>()->At(i);        
+                  
+                std::time_t t = block[3]->As<ColumnDateTime>()->At(i);
+                std::cerr << std::asctime(std::localtime(&t)) << " " << std::endl;
             }     
         }
     );
@@ -561,7 +625,7 @@ int main(int argc, char** argv) {
                 .SetCompressionMethod(CompressionMethod::LZ4));
         RunTests(client);
 
-        GenericExample(client);
+        //GenericExample(client);
 
 
     } catch (const std::exception& e) {

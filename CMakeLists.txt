@@ -56,8 +56,10 @@ set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0  -ggdb -std=c++17 -fno-strict-alia
 set(CMAKE_BUILD_TYPE "Debug")
 
 
-#include_directories("${PROJECT_SOURCE_DIR}")
-#aux_source_directory(./ DIR_SRCS)
+#include_directories(.)
+#aux_source_directory(. DIR_SRCS)
+#add_executable(simple $(DIR_SRCS))
+
 add_executable(simple main.cpp)
 
 set(libs ${LIBCK_LIB}  ${LIBCITY_LIB} ${LIBLZ_LIB}  ${LIBX_LIB}  ${LIBZMQ_LIB} ${LIBICONV_LIB}  ${boost_libs})
