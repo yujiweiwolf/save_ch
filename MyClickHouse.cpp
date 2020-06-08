@@ -49,12 +49,12 @@ void MyClickHouse::ReadQTick(string file) {
 }
 
 void MyClickHouse::InsertQTick() {
-client_->Execute("CREATE TABLE IF NOT EXISTS test.QTick (date Date, datetime DateTime, stamp Int64, src Int8, dtype Int8, timestamp Int64, code String, name String, market Int8, pre_close Float64, upper_limit Float64, lower_limit Float64, bp Array(Float64), bv Array(Int64), ap Array(Float64), av Array(Int64), status Int8, new_price Float64, new_volume Int64, new_amount Float64, sum_volume Int64, sum_amount Float64, open Float64, high Float64, low Float64, avg_bid_price Float64, avg_ask_price Float64, new_bid_volume Int64, new_bid_amount Float64, new_ask_volume Int64, new_ask_amount Float64, open_interest Int64, pre_settle Float64, pre_open_interest Int64, close Float64, settle Float64, multiple Int64, price_step Float64, create_date Int32, list_date Int32, expire_date Int32, start_settle_date Int32, end_settle_date Int32, exercise_date Int32, exercise_price Float64, cp_flag Int8, underlying_code String, sum_bid_volume Int64, sum_bid_amount Float64, sum_ask_volume Int64, sum_ask_amount Float64, bid_order_volume Int64, bid_order_amount Float64, bid_cancel_volume Int64, bid_cancel_amount Float64, ask_order_volume Int64, ask_order_amount Float64, ask_cancel_volume Int64, ask_cancel_amount Float64, new_knock_count Int64, sum_knock_count Int64) ENGINE=MergeTree ORDER BY(timestamp, code, name) PARTITION BY (date)");
+client_->Execute("CREATE TABLE IF NOT EXISTS QTick (date Date, datetime DateTime, stamp Int64, src Int8, dtype Int8, timestamp Int64, code String, name String, market Int8, pre_close Float64, upper_limit Float64, lower_limit Float64, bp Array(Float64), bv Array(Int64), ap Array(Float64), av Array(Int64), status Int8, new_price Float64, new_volume Int64, new_amount Float64, sum_volume Int64, sum_amount Float64, open Float64, high Float64, low Float64, avg_bid_price Float64, avg_ask_price Float64, new_bid_volume Int64, new_bid_amount Float64, new_ask_volume Int64, new_ask_amount Float64, open_interest Int64, pre_settle Float64, pre_open_interest Int64, close Float64, settle Float64, multiple Int64, price_step Float64, create_date Int32, list_date Int32, expire_date Int32, start_settle_date Int32, end_settle_date Int32, exercise_date Int32, exercise_price Float64, cp_flag Int8, underlying_code String, sum_bid_volume Int64, sum_bid_amount Float64, sum_ask_volume Int64, sum_ask_amount Float64, bid_order_volume Int64, bid_order_amount Float64, bid_cancel_volume Int64, bid_cancel_amount Float64, ask_order_volume Int64, ask_order_amount Float64, ask_cancel_volume Int64, ask_cancel_amount Float64, new_knock_count Int64, sum_knock_count Int64) ENGINE=MergeTree ORDER BY(timestamp, code, name) PARTITION BY (date)");
     float time_use = 0;
     struct timeval start;
     struct timeval end;
     gettimeofday(&start, NULL);
-    cout << " CREATE TABLE IF NOT EXISTS test.QTick  "<< endl;
+
     Block block;
     
     auto date = std::make_shared<ColumnDate>();
@@ -286,7 +286,7 @@ client_->Execute("CREATE TABLE IF NOT EXISTS test.QTick (date Date, datetime Dat
     block.AppendColumn("new_knock_count", new_knock_count);
     block.AppendColumn("sum_knock_count", sum_knock_count);
 
-    client_->Insert("test.QTick", block);
+    client_->Insert("QTick", block);
     gettimeofday(&end, NULL);
     time_use = (end.tv_sec - start.tv_sec)*1000000 + (end.tv_usec - start.tv_usec); //微秒
     printf("time_use is %.10f\n", time_use);
@@ -300,7 +300,7 @@ void MyClickHouse::ReadQTick() {
     
     long Total_num = 0;
     flatbuffers::FlatBufferBuilder builder;    
-    client_->Select("SELECT * FROM test.QTick", [&](const Block & block) {    
+    client_->Select("SELECT * FROM QTick", [&](const Block & block) {    
         Total_num += block.GetRowCount();
         for (size_t i = 0; i < block.GetRowCount(); ++i) {
 //            int src = (*block[0]->As<ColumnInt8>())[i];
@@ -494,7 +494,7 @@ void MyClickHouse::ReadQTick() {
     printf("read time_use is %.10f\n", time_use);
     cout << "Total_num " << Total_num << endl;
     //// Delete table.
-    //client_->Execute("DROP TABLE test.QTick");
+    //client_->Execute("DROP TABLE QTick");
 }
 
 void MyClickHouse::GenericExample() {
