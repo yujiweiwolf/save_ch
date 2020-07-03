@@ -82,7 +82,7 @@ static int64_t GetTime(int64_t endTime) {
     time_t time_1 = mktime(&_time_1);
     time_t time_2 = mktime(&_time_2);
     //long remainSec = difftime(time_2,time_1) - 8 * 3600;
-    int64_t remainSec = difftime(time_2, time_1) + 7 * 3600;
+    int64_t remainSec = difftime(time_2, time_1) + 0 * 3600;
     return remainSec;
     //printf("<%ld>\n", remainSec);
 }
@@ -98,13 +98,21 @@ public:
     MyClickHouse(const MyClickHouse& orig);
     virtual ~MyClickHouse();
     void ReadQTick(string file);
+    void ReadPBQTick(string file);
     void InsertQTick();
+    void InsertPBQTick();
     void ReadQTick();    
     void GenericExample();
+    bool HandleLine(const string& line);    
+    void GetFileNum(const string& dirname, const string& date);
+    void ReadAllPBQTick();
     
 private:    
     Client* client_;    
-    std::list<string> list_qtick;
+    std::list<string> list_qtick;    
+    std::list<string> list_pb;
+    std::map<int, string> files_;
+    
 };
 
 #endif /* MYCLICKHOUSE_H */
