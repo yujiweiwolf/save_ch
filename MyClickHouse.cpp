@@ -16,18 +16,18 @@
 #include <dirent.h>
 
 MyClickHouse::MyClickHouse() {
-//    client_ = new Client (ClientOptions()
-//                .SetHost("localhost")
-//                .SetUser("test")
-//                .SetPassword("abc123")
-//                .SetDefaultDatabase("yujiwei")
-//                .SetPingBeforeQuery(true)
-//                .SetCompressionMethod(CompressionMethod::LZ4));
-    
     client_ = new Client (ClientOptions()
-                .SetHost("192.168.101.236")
+                .SetHost("localhost")
+                .SetUser("test")
+                .SetPassword("abc123")
+                .SetDefaultDatabase("yujiwei")
                 .SetPingBeforeQuery(true)
                 .SetCompressionMethod(CompressionMethod::LZ4));
+    
+//    client_ = new Client (ClientOptions()
+//                .SetHost("192.168.101.236")
+//                .SetPingBeforeQuery(true)
+//                .SetCompressionMethod(CompressionMethod::LZ4));
 }
 
 MyClickHouse::MyClickHouse(const MyClickHouse& orig) {
@@ -574,13 +574,14 @@ void MyClickHouse::ReadPBQTick(string file) {
             }
         }
     }
+    InsertPBQTick();
     infile.close();    
     cout << "list_pb " << list_pb.size() << endl;
 }
 
 void MyClickHouse::InsertPBQTick() {
     client_->Execute("CREATE TABLE IF NOT EXISTS QTick (date Date, datetime DateTime, stamp Int64, src Int8, dtype Int8, timestamp Int64, code String, name String, market Int8, pre_close Float64, upper_limit Float64, lower_limit Float64, bp Array(Float64), bv Array(Int64), ap Array(Float64), av Array(Int64), status Int8, new_price Float64, new_volume Int64, new_amount Float64, sum_volume Int64, sum_amount Float64, open Float64, high Float64, low Float64, avg_bid_price Float64, avg_ask_price Float64, new_bid_volume Int64, new_bid_amount Float64, new_ask_volume Int64, new_ask_amount Float64, open_interest Int64, pre_settle Float64, pre_open_interest Int64, close Float64, settle Float64, multiple Int64, price_step Float64, create_date Int32, list_date Int32, expire_date Int32, start_settle_date Int32, end_settle_date Int32, exercise_date Int32, exercise_price Float64, cp_flag Int8, underlying_code String, sum_bid_volume Int64, sum_bid_amount Float64, sum_ask_volume Int64, sum_ask_amount Float64, bid_order_volume Int64, bid_order_amount Float64, bid_cancel_volume Int64, bid_cancel_amount Float64, ask_order_volume Int64, ask_order_amount Float64, ask_cancel_volume Int64, ask_cancel_amount Float64, new_knock_count Int64, sum_knock_count Int64) ENGINE=MergeTree ORDER BY(timestamp, code, name) PARTITION BY (date)");
-    float time_use = 0;
+    long time_use = 0;
     struct timeval start;
     struct timeval end;
     gettimeofday(&start, NULL);
@@ -947,7 +948,7 @@ void MyClickHouse::InsertPBQTick() {
     client_->Insert("QTick", block);
     gettimeofday(&end, NULL);
     time_use = (end.tv_sec - start.tv_sec)*1000000 + (end.tv_usec - start.tv_usec); //微秒
-    printf("time_use is %.10f\n", time_use);
+    printf("list_pb size <%d> time_use is <%ld>\n", list_pb.size(), time_use);
     list_pb.clear();
 }
 
@@ -1025,6 +1026,20 @@ void MyClickHouse::ReadAllPBQTick() {
         //InsertPBQTick();
     }   
 }
+
+void MyClickHouse::DeleteTable() {
+    for (int month = 1; month <= 12; month++) {
+        for (int day = 1; day <= 31; day++) {
+            char Temp[256] = "";
+            sprintf(Temp, "alter table QTick DROP PARTITION '2019-%2d-%2d';", month, day);
+            printf("%s", Temp);    
+            client_->Execute(Temp);
+            sleep(1000);
+        }        
+    }
+    
+}
+
 
 
 

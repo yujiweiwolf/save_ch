@@ -106,6 +106,7 @@ public:
     bool HandleLine(const string& line);    
     void GetFileNum(const string& dirname, const string& date);
     void ReadAllPBQTick();
+    void DeleteTable();
     
 private:    
     Client* client_;    
