@@ -39,6 +39,7 @@
 
 #include "x/x.h"
 #include "QTick_generated.h"
+#include "nano_log.h"
 
 #define random(x) (rand()%x)
 
@@ -55,42 +56,78 @@ struct QTickT {
     char code[16];
     char name[16];
     int8_t market;
-    double pre_close;
-    double upper_limit;
-    double lower_limit;
-    double bp[10];
-    int64_t bv[10];
-    double ap[10];
-    int64_t av[10];
+    int64_t pre_close;
+    int64_t upper_limit;
+    int64_t lower_limit;
+    int64_t bp1; // 买1价
+    int64_t bp2; // 买2价
+    int64_t bp3; // 买3价
+    int64_t bp4; // 买4价
+    int64_t bp5; // 买5价
+    int64_t bp6; // 买6价
+    int64_t bp7; // 买7价
+    int64_t bp8; // 买8价
+    int64_t bp9; // 买9价
+    int64_t bp10; // 买10价
+    int64_t bv1; // 买1量
+    int64_t bv2; // 买2量
+    int64_t bv3; // 买3量
+    int64_t bv4; // 买4量
+    int64_t bv5; // 买5量
+    int64_t bv6; // 买6量
+    int64_t bv7; // 买7量
+    int64_t bv8; // 买8量
+    int64_t bv9; // 买9量
+    int64_t bv10; // 买10量
+    int64_t ap1; // 卖1价
+    int64_t ap2; // 卖2价
+    int64_t ap3; // 卖3价
+    int64_t ap4; // 卖4价
+    int64_t ap5; // 卖5价
+    int64_t ap6; // 卖6价
+    int64_t ap7; // 卖7价
+    int64_t ap8; // 卖8价
+    int64_t ap9; // 卖9价
+    int64_t ap10; // 卖10价
+    int64_t av1; // 卖1量
+    int64_t av2; // 卖2量
+    int64_t av3; // 卖3量
+    int64_t av4; // 卖4量
+    int64_t av5; // 卖5量
+    int64_t av6; // 卖6量
+    int64_t av7; // 卖7量
+    int64_t av8; // 卖8量
+    int64_t av9; // 卖9量
+    int64_t av10; // 卖10量
     int8_t status;
-    double new_price;
+    int64_t new_price;
     int64_t new_volume;
     double new_amount;
     int64_t sum_volume;
     double sum_amount;
-    double open;
-    double high;
-    double low;
-    double avg_bid_price;
-    double avg_ask_price;
+    int64_t open;
+    int64_t high;
+    int64_t low;
+    int64_t avg_bid_price;
+    int64_t avg_ask_price;
     int64_t new_bid_volume;
     double new_bid_amount;
     int64_t new_ask_volume;
     double new_ask_amount;
     int64_t open_interest;
-    double pre_settle;
+    int64_t pre_settle;
     int64_t pre_open_interest;
-    double close;
-    double settle;
+    int64_t close;
+    int64_t settle;
     int64_t multiple;
-    double price_step;
+    int64_t price_step;
     int32_t create_date;
     int32_t list_date;
     int32_t expire_date;
     int32_t start_settle_date;
     int32_t end_settle_date;
     int32_t exercise_date;
-    double exercise_price;
+    int64_t exercise_price;
     int8_t cp_flag;
     char underlying_code[8];
     int64_t sum_bid_volume;

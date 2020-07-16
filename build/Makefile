@@ -194,6 +194,33 @@ main.cpp.s:
 	$(MAKE) -f CMakeFiles/save_clickhouse.dir/build.make CMakeFiles/save_clickhouse.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+nano_log.o: nano_log.cc.o
+
+.PHONY : nano_log.o
+
+# target to build an object file
+nano_log.cc.o:
+	$(MAKE) -f CMakeFiles/save_clickhouse.dir/build.make CMakeFiles/save_clickhouse.dir/nano_log.cc.o
+.PHONY : nano_log.cc.o
+
+nano_log.i: nano_log.cc.i
+
+.PHONY : nano_log.i
+
+# target to preprocess a source file
+nano_log.cc.i:
+	$(MAKE) -f CMakeFiles/save_clickhouse.dir/build.make CMakeFiles/save_clickhouse.dir/nano_log.cc.i
+.PHONY : nano_log.cc.i
+
+nano_log.s: nano_log.cc.s
+
+.PHONY : nano_log.s
+
+# target to generate assembly for a file
+nano_log.cc.s:
+	$(MAKE) -f CMakeFiles/save_clickhouse.dir/build.make CMakeFiles/save_clickhouse.dir/nano_log.cc.s
+.PHONY : nano_log.cc.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -209,6 +236,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... nano_log.o"
+	@echo "... nano_log.i"
+	@echo "... nano_log.s"
 .PHONY : help
 
 

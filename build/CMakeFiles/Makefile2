@@ -91,12 +91,12 @@ clean: CMakeFiles/save_clickhouse.dir/clean
 CMakeFiles/save_clickhouse.dir/all:
 	$(MAKE) -f CMakeFiles/save_clickhouse.dir/build.make CMakeFiles/save_clickhouse.dir/depend
 	$(MAKE) -f CMakeFiles/save_clickhouse.dir/build.make CMakeFiles/save_clickhouse.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yujw/Desktop/develop/save_ch/build/CMakeFiles --progress-num=1,2,3 "Built target save_clickhouse"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/yujw/Desktop/develop/save_ch/build/CMakeFiles --progress-num=1,2,3,4 "Built target save_clickhouse"
 .PHONY : CMakeFiles/save_clickhouse.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/save_clickhouse.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/yujw/Desktop/develop/save_ch/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yujw/Desktop/develop/save_ch/build/CMakeFiles 4
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/save_clickhouse.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/yujw/Desktop/develop/save_ch/build/CMakeFiles 0
 .PHONY : CMakeFiles/save_clickhouse.dir/rule
