@@ -17,18 +17,18 @@
 #include "datastruct.h"
 
 MyClickHouse::MyClickHouse() {
-//    client_ = new Client (ClientOptions()
-//                .SetHost("localhost")
-//                .SetUser("test")
-//                .SetPassword("abc123")
-//                .SetDefaultDatabase("yujiwei")
-//                .SetPingBeforeQuery(true)
-//                .SetCompressionMethod(CompressionMethod::LZ4));
-    
     client_ = new Client (ClientOptions()
-                .SetHost("192.168.101.236")
+                .SetHost("localhost")
+                .SetUser("test")
+                .SetPassword("abc123")
+                .SetDefaultDatabase("yujiwei")
                 .SetPingBeforeQuery(true)
                 .SetCompressionMethod(CompressionMethod::LZ4));
+    
+//    client_ = new Client (ClientOptions()
+//                .SetHost("192.168.101.236")
+//                .SetPingBeforeQuery(true)
+//                .SetCompressionMethod(CompressionMethod::LZ4));
 }
 
 MyClickHouse::MyClickHouse(const MyClickHouse& orig) {
@@ -357,33 +357,33 @@ void MyClickHouse::ReadClickHouse(string date, string code) {
             //long timestamp = (*block[5]->As<ColumnInt64>())[i];   
 
 //            cout << "bp:"
-//                << (*block[12]->As<ColumnInt64>())[i] << " "
-//                << (*block[13]->As<ColumnInt64>())[i] << " "
-//                << (*block[14]->As<ColumnInt64>())[i] << " "
-//                << (*block[15]->As<ColumnInt64>())[i] << " "
-//                << (*block[16]->As<ColumnInt64>())[i] << " "
-//                << (*block[17]->As<ColumnInt64>())[i] << " "
-//                << (*block[18]->As<ColumnInt64>())[i] << " "
-//                << (*block[19]->As<ColumnInt64>())[i] << " "
-//                << (*block[20]->As<ColumnInt64>())[i] << " "
-//                << (*block[21]->As<ColumnInt64>())[i] << " "
+//                << (*block[12]->As<ColumnFloat64>())[i] << " "
+//                << (*block[13]->As<ColumnFloat64>())[i] << " "
+//                << (*block[14]->As<ColumnFloat64>())[i] << " "
+//                << (*block[15]->As<ColumnFloat64>())[i] << " "
+//                << (*block[16]->As<ColumnFloat64>())[i] << " "
+//                << (*block[17]->As<ColumnFloat64>())[i] << " "
+//                << (*block[18]->As<ColumnFloat64>())[i] << " "
+//                << (*block[19]->As<ColumnFloat64>())[i] << " "
+//                << (*block[20]->As<ColumnFloat64>())[i] << " "
+//                << (*block[21]->As<ColumnFloat64>())[i] << " "
 //                << "ap:"
-//                << (*block[32]->As<ColumnInt64>())[i] << " "
-//                << (*block[33]->As<ColumnInt64>())[i] << " "
-//                << (*block[34]->As<ColumnInt64>())[i] << " "
-//                << (*block[35]->As<ColumnInt64>())[i] << " "
-//                << (*block[36]->As<ColumnInt64>())[i] << " "
-//                << (*block[37]->As<ColumnInt64>())[i] << " "
-//                << (*block[38]->As<ColumnInt64>())[i] << " "
-//                << (*block[39]->As<ColumnInt64>())[i] << " "
-//                << (*block[40]->As<ColumnInt64>())[i] << " "
-//                << (*block[41]->As<ColumnInt64>())[i] << " "
+//                << (*block[32]->As<ColumnFloat64>())[i] << " "
+//                << (*block[33]->As<ColumnFloat64>())[i] << " "
+//                << (*block[34]->As<ColumnFloat64>())[i] << " "
+//                << (*block[35]->As<ColumnFloat64>())[i] << " "
+//                << (*block[36]->As<ColumnFloat64>())[i] << " "
+//                << (*block[37]->As<ColumnFloat64>())[i] << " "
+//                << (*block[38]->As<ColumnFloat64>())[i] << " "
+//                << (*block[39]->As<ColumnFloat64>())[i] << " "
+//                << (*block[40]->As<ColumnFloat64>())[i] << " "
+//                << (*block[41]->As<ColumnFloat64>())[i] << " "
 //                << endl;
                         
             int length = 10;
             double bp_value[length];
             for (size_t j = 0; j < length; ++j) {                
-                bp_value[j] = (*block[12 + j]->As<ColumnInt64>())[i]/ 10000.0;
+                bp_value[j] = (*block[12 + j]->As<ColumnFloat64>())[i];
             }
             auto bp_vec = builder.CreateVector(bp_value, length);           
             
@@ -397,7 +397,7 @@ void MyClickHouse::ReadClickHouse(string date, string code) {
      
             double ap_value[length];
             for (size_t j = 0; j < length; ++j) {
-                ap_value[j] = (*block[32 + j]->As<ColumnInt64>())[i] / 10000.0;
+                ap_value[j] = (*block[32 + j]->As<ColumnFloat64>())[i];
             } 
             auto ap_vec = builder.CreateVector(ap_value, length);        
      
@@ -414,9 +414,9 @@ void MyClickHouse::ReadClickHouse(string date, string code) {
             msgData.add_code(content_code);
             msgData.add_name(content_name);  
             msgData.add_market((*block[8]->As<ColumnInt8>())[i]);
-            msgData.add_pre_close((*block[9]->As<ColumnInt64>())[i]);
-            msgData.add_upper_limit((*block[10]->As<ColumnInt64>())[i]);
-            msgData.add_lower_limit((*block[11]->As<ColumnInt64>())[i]);     
+            msgData.add_pre_close((*block[9]->As<ColumnFloat64>())[i]);
+            msgData.add_upper_limit((*block[10]->As<ColumnFloat64>())[i]);
+            msgData.add_lower_limit((*block[11]->As<ColumnFloat64>())[i]);     
                    
             
             
@@ -427,34 +427,34 @@ void MyClickHouse::ReadClickHouse(string date, string code) {
 
             int offset = 36;
             msgData.add_status((*block[16 + offset]->As<ColumnInt8>())[i]);
-            msgData.add_new_price((*block[17 + offset]->As<ColumnInt64>())[i]);
+            msgData.add_new_price((*block[17 + offset]->As<ColumnFloat64>())[i]);
             msgData.add_new_volume((*block[18 + offset]->As<ColumnInt64>())[i]);
             msgData.add_new_amount((*block[19 + offset]->As<ColumnFloat64>())[i]);
             msgData.add_sum_volume((*block[20 + offset]->As<ColumnInt64>())[i]);
             msgData.add_sum_amount((*block[21 + offset]->As<ColumnFloat64>())[i]);
-            msgData.add_open((*block[22 + offset]->As<ColumnInt64>())[i]);
-            msgData.add_high((*block[23 + offset]->As<ColumnInt64>())[i]);
-            msgData.add_low((*block[24 + offset]->As<ColumnInt64>())[i]);
-            msgData.add_avg_bid_price((*block[25 + offset]->As<ColumnInt64>())[i]);
-            msgData.add_avg_ask_price((*block[26 + offset]->As<ColumnInt64>())[i]);
+            msgData.add_open((*block[22 + offset]->As<ColumnFloat64>())[i]);
+            msgData.add_high((*block[23 + offset]->As<ColumnFloat64>())[i]);
+            msgData.add_low((*block[24 + offset]->As<ColumnFloat64>())[i]);
+            msgData.add_avg_bid_price((*block[25 + offset]->As<ColumnFloat64>())[i]);
+            msgData.add_avg_ask_price((*block[26 + offset]->As<ColumnFloat64>())[i]);
             msgData.add_new_bid_volume((*block[27 + offset]->As<ColumnInt64>())[i]);
             msgData.add_new_bid_amount((*block[28 + offset]->As<ColumnFloat64>())[i]);
             msgData.add_new_ask_volume((*block[29 + offset]->As<ColumnInt64>())[i]);
             msgData.add_new_ask_amount((*block[30 + offset]->As<ColumnFloat64>())[i]);
             msgData.add_open_interest((*block[31 + offset]->As<ColumnInt64>())[i]);
-            msgData.add_pre_settle((*block[32 + offset]->As<ColumnInt64>())[i]);
+            msgData.add_pre_settle((*block[32 + offset]->As<ColumnFloat64>())[i]);
             msgData.add_pre_open_interest((*block[33 + offset]->As<ColumnInt64>())[i]);
-            msgData.add_close((*block[34 + offset]->As<ColumnInt64>())[i]);
-            msgData.add_settle((*block[35 + offset]->As<ColumnInt64>())[i]);
+            msgData.add_close((*block[34 + offset]->As<ColumnFloat64>())[i]);
+            msgData.add_settle((*block[35 + offset]->As<ColumnFloat64>())[i]);
             msgData.add_multiple((*block[36 + offset]->As<ColumnInt64>())[i]);
-            msgData.add_price_step((*block[37 + offset]->As<ColumnInt64>())[i]);
+            msgData.add_price_step((*block[37 + offset]->As<ColumnFloat64>())[i]);
             msgData.add_create_date((*block[38 + offset]->As<ColumnInt32>())[i]);
             msgData.add_list_date((*block[39 + offset]->As<ColumnInt32>())[i]);
             msgData.add_expire_date((*block[40 + offset]->As<ColumnInt32>())[i]);
             msgData.add_start_settle_date((*block[41 + offset]->As<ColumnInt32>())[i]);
             msgData.add_end_settle_date((*block[42 + offset]->As<ColumnInt32>())[i]);
             msgData.add_exercise_date((*block[43 + offset]->As<ColumnInt32>())[i]);
-            msgData.add_exercise_price((*block[44 + offset]->As<ColumnInt64>())[i]);
+            msgData.add_exercise_price((*block[44 + offset]->As<ColumnFloat64>())[i]);
             msgData.add_cp_flag((*block[45 + offset]->As<ColumnInt8>())[i]);
             msgData.add_underlying_code(content_underlying_code);
             msgData.add_sum_bid_volume((*block[47 + offset]->As<ColumnInt64>())[i]);
@@ -1059,30 +1059,30 @@ void MyClickHouse::ConvertStruct() {
             strcpy(tick.code, it.code().c_str());
             strcpy(tick.name, it.name().c_str());
             tick.market = it.market();
-            tick.pre_close = it.pre_close();
-            tick.upper_limit = it.upper_limit();
-            tick.lower_limit = it.lower_limit();
+            tick.pre_close = i2f(it.pre_close());
+            tick.upper_limit = i2f(it.upper_limit());
+            tick.lower_limit = i2f(it.lower_limit());
             
             if (it.bp1() > 0) {
-                tick.bp1 = it.bp1();
+                tick.bp1 = i2f(it.bp1());
                 if (it.bp2() > 0) {
-                    tick.bp2 = it.bp2();
+                    tick.bp2 = i2f(it.bp2());
                     if (it.bp3() > 0) {
-                        tick.bp3 = it.bp3();
+                        tick.bp3 = i2f(it.bp3());
                         if (it.bp4() > 0) {
-                            tick.bp4 = it.bp4();
+                            tick.bp4 = i2f(it.bp4());
                             if (it.bp5() > 0) {
-                                tick.bp5 = it.bp5();
+                                tick.bp5 = i2f(it.bp5());
                                 if (it.bp6() > 0) {
-                                   tick.bp6 = it.bp6();
+                                   tick.bp6 = i2f(it.bp6());
                                     if (it.bp7() > 0) {
-                                        tick.bp7 = it.bp7();
+                                        tick.bp7 = i2f(it.bp7());
                                         if (it.bp8() > 0) {
-                                            tick.bp8= it.bp8();
+                                            tick.bp8= i2f(it.bp8());
                                             if (it.bp9() > 0) {
-                                                tick.bp9 = it.bp9();
+                                                tick.bp9 = i2f(it.bp9());
                                                 if (it.bp10() > 0) {
-                                                    tick.bp10 = it.bp10();
+                                                    tick.bp10 = i2f(it.bp10());
                                                 }
                                             }
                                         }
@@ -1125,25 +1125,25 @@ void MyClickHouse::ConvertStruct() {
                 }
             }
             if (it.ap1() > 0) {
-                tick.ap1 = it.ap1();
+                tick.ap1 = i2f(it.ap1());
                 if (it.ap2() > 0) {
-                    tick.ap2 = it.ap2();
+                    tick.ap2 = i2f(it.ap2());
                     if (it.ap3() > 0) {
-                        tick.ap3 = it.ap3();
+                        tick.ap3 = i2f(it.ap3());
                         if (it.ap4() > 0) {
-                            tick.ap4 = it.ap4();
+                            tick.ap4 = i2f(it.ap4());
                             if (it.ap5() > 0) {
-                                tick.ap5 = it.ap5();
+                                tick.ap5 = i2f(it.ap5());
                                 if (it.ap6() > 0) {
-                                   tick.ap6 = it.ap6();
+                                   tick.ap6 = i2f(it.ap6());
                                     if (it.ap7() > 0) {
-                                        tick.ap7 = it.ap7();
+                                        tick.ap7 = i2f(it.ap7());
                                         if (it.ap8() > 0) {
-                                            tick.ap8 = it.ap8();
+                                            tick.ap8 = i2f(it.ap8());
                                             if (it.ap9() > 0) {
-                                                tick.ap9 = it.ap9();
+                                                tick.ap9 = i2f(it.ap9());
                                                 if (it.ap10() > 0) {
-                                                    tick.ap10 = it.ap10();
+                                                    tick.ap10 = i2f(it.ap10());
                                                 }
                                             }
                                         }
@@ -1187,34 +1187,34 @@ void MyClickHouse::ConvertStruct() {
             }
             
             tick.status = it.status();
-            tick.new_price = it.new_price();
+            tick.new_price = i2f(it.new_price());
             tick.new_volume = it.new_volume();
             tick.new_amount = it.new_amount();
             tick.sum_volume = it.sum_volume();
             tick.sum_amount = it.sum_amount();
-            tick.open = it.open();
-            tick.high = it.high();
-            tick.low = it.low();
-            tick.avg_bid_price = it.weighted_avg_bid_price();
-            tick.avg_ask_price = it.weighted_avg_ask_price();
+            tick.open = i2f(it.open());
+            tick.high = i2f(it.high());
+            tick.low = i2f(it.low());
+            tick.avg_bid_price = i2f(it.weighted_avg_bid_price());
+            tick.avg_ask_price = i2f(it.weighted_avg_ask_price());
             tick.new_bid_volume = it.new_bid_volume();
             tick.new_bid_amount = it.new_bid_amount();
             tick.new_ask_volume = it.new_ask_volume();
             tick.new_ask_amount = it.new_ask_amount();
             tick.open_interest = 0;
-            tick.pre_settle = 0;
+            tick.pre_settle = 0.0;
             tick.pre_open_interest = 0;
-            tick.close = 0;
-            tick.settle = 0;
+            tick.close = 0.0;
+            tick.settle = 0.0;
             tick.multiple = 0;
-            tick.price_step = 0;
+            tick.price_step = 0.0;
             tick.create_date = 0;
             tick.list_date = 0;
             tick.expire_date = 0;
             tick.start_settle_date = 0;
             tick.end_settle_date = 0;
             tick.exercise_date = 0;
-            tick.exercise_price = 0;
+            tick.exercise_price = 0.0;
             tick.cp_flag = 0;
             // tick.underlying_code = it.underlying_code();
             tick.sum_bid_volume = it.sum_bid_volume();
@@ -1239,7 +1239,7 @@ void MyClickHouse::ConvertStruct() {
 }
 
 void MyClickHouse::InsertStructQTick() {
-    client_->Execute("CREATE TABLE IF NOT EXISTS QTick (date Date, datetime DateTime, stamp Int64, src Int8, dtype Int8, timestamp Int64, code String, name String, market Int8, pre_close Int64, upper_limit Int64, lower_limit Int64, bp1 Int64, bp2 Int64, bp3 Int64, bp4 Int64, bp5 Int64, bp6 Int64, bp7 Int64, bp8 Int64, bp9 Int64, bp10 Int64, bv1 Int64, bv2 Int64, bv3 Int64, bv4 Int64, bv5 Int64, bv6 Int64, bv7 Int64, bv8 Int64, bv9 Int64, bv10 Int64, ap1 Int64, ap2 Int64, ap3 Int64, ap4 Int64, ap5 Int64, ap6 Int64, ap7 Int64, ap8 Int64, ap9 Int64, ap10 Int64, av1 Int64, av2 Int64, av3 Int64, av4 Int64, av5 Int64, av6 Int64, av7 Int64, av8 Int64, av9 Int64, av10 Int64,status Int8, new_price Int64, new_volume Int64, new_amount Float64, sum_volume Int64, sum_amount Float64, open Int64, high Int64, low Int64, avg_bid_price Int64, avg_ask_price Int64, new_bid_volume Int64, new_bid_amount Float64, new_ask_volume Int64, new_ask_amount Float64, open_interest Int64, pre_settle Int64, pre_open_interest Int64, close Int64, settle Int64, multiple Int64, price_step Int64, create_date Int32, list_date Int32, expire_date Int32, start_settle_date Int32, end_settle_date Int32, exercise_date Int32, exercise_price Int64, cp_flag Int8, underlying_code String, sum_bid_volume Int64, sum_bid_amount Float64, sum_ask_volume Int64, sum_ask_amount Float64, bid_order_volume Int64, bid_order_amount Float64, bid_cancel_volume Int64, bid_cancel_amount Float64, ask_order_volume Int64, ask_order_amount Float64, ask_cancel_volume Int64, ask_cancel_amount Float64, new_knock_count Int64, sum_knock_count Int64) ENGINE = MergeTree PARTITION BY date ORDER BY code SETTINGS index_granularity = 8192");
+    client_->Execute("CREATE TABLE IF NOT EXISTS QTick (date Date, datetime DateTime, stamp Int64, src Int8, dtype Int8, timestamp Int64, code String, name String, market Int8, pre_close Float64, upper_limit Float64, lower_limit Float64, bp1 Float64, bp2 Float64, bp3 Float64, bp4 Float64, bp5 Float64, bp6 Float64, bp7 Float64, bp8 Float64, bp9 Float64, bp10 Float64, bv1 Int64, bv2 Int64, bv3 Int64, bv4 Int64, bv5 Int64, bv6 Int64, bv7 Int64, bv8 Int64, bv9 Int64, bv10 Int64, ap1 Float64, ap2 Float64, ap3 Float64, ap4 Float64, ap5 Float64, ap6 Float64, ap7 Float64, ap8 Float64, ap9 Float64, ap10 Float64, av1 Int64, av2 Int64, av3 Int64, av4 Int64, av5 Int64, av6 Int64, av7 Int64, av8 Int64, av9 Int64, av10 Int64,status Int8, new_price Float64, new_volume Int64, new_amount Float64, sum_volume Int64, sum_amount Float64, open Float64, high Float64, low Float64, avg_bid_price Float64, avg_ask_price Float64, new_bid_volume Int64, new_bid_amount Float64, new_ask_volume Int64, new_ask_amount Float64, open_interest Int64, pre_settle Float64, pre_open_interest Int64, close Float64, settle Float64, multiple Int64, price_step Float64, create_date Int32, list_date Int32, expire_date Int32, start_settle_date Int32, end_settle_date Int32, exercise_date Int32, exercise_price Float64, cp_flag Int8, underlying_code String, sum_bid_volume Int64, sum_bid_amount Float64, sum_ask_volume Int64, sum_ask_amount Float64, bid_order_volume Int64, bid_order_amount Float64, bid_cancel_volume Int64, bid_cancel_amount Float64, ask_order_volume Int64, ask_order_amount Float64, ask_cancel_volume Int64, ask_cancel_amount Float64, new_knock_count Int64, sum_knock_count Int64) ENGINE = MergeTree PARTITION BY date ORDER BY code SETTINGS index_granularity = 8192");
     long time_use = 0;
     struct timeval start;
     struct timeval mid;
@@ -1258,20 +1258,20 @@ void MyClickHouse::InsertStructQTick() {
     auto code = std::make_shared<ColumnString>();
     auto name = std::make_shared<ColumnString>();
     auto market = std::make_shared<ColumnInt8>();
-    auto pre_close = std::make_shared<ColumnInt64>();
-    auto upper_limit = std::make_shared<ColumnInt64>();
-    auto lower_limit = std::make_shared<ColumnInt64>();
+    auto pre_close = std::make_shared<ColumnFloat64>();
+    auto upper_limit = std::make_shared<ColumnFloat64>();
+    auto lower_limit = std::make_shared<ColumnFloat64>();
     
-    auto bp1 = std::make_shared<ColumnInt64>();
-    auto bp2 = std::make_shared<ColumnInt64>();
-    auto bp3 = std::make_shared<ColumnInt64>();
-    auto bp4 = std::make_shared<ColumnInt64>();
-    auto bp5 = std::make_shared<ColumnInt64>();
-    auto bp6 = std::make_shared<ColumnInt64>();
-    auto bp7 = std::make_shared<ColumnInt64>();
-    auto bp8 = std::make_shared<ColumnInt64>();
-    auto bp9 = std::make_shared<ColumnInt64>();
-    auto bp10 = std::make_shared<ColumnInt64>();
+    auto bp1 = std::make_shared<ColumnFloat64>();
+    auto bp2 = std::make_shared<ColumnFloat64>();
+    auto bp3 = std::make_shared<ColumnFloat64>();
+    auto bp4 = std::make_shared<ColumnFloat64>();
+    auto bp5 = std::make_shared<ColumnFloat64>();
+    auto bp6 = std::make_shared<ColumnFloat64>();
+    auto bp7 = std::make_shared<ColumnFloat64>();
+    auto bp8 = std::make_shared<ColumnFloat64>();
+    auto bp9 = std::make_shared<ColumnFloat64>();
+    auto bp10 = std::make_shared<ColumnFloat64>();
     
     auto bv1 = std::make_shared<ColumnInt64>();
     auto bv2 = std::make_shared<ColumnInt64>();
@@ -1284,16 +1284,16 @@ void MyClickHouse::InsertStructQTick() {
     auto bv9 = std::make_shared<ColumnInt64>();
     auto bv10 = std::make_shared<ColumnInt64>();
     
-    auto ap1 = std::make_shared<ColumnInt64>();
-    auto ap2 = std::make_shared<ColumnInt64>();
-    auto ap3 = std::make_shared<ColumnInt64>();
-    auto ap4 = std::make_shared<ColumnInt64>();
-    auto ap5 = std::make_shared<ColumnInt64>();
-    auto ap6 = std::make_shared<ColumnInt64>();
-    auto ap7 = std::make_shared<ColumnInt64>();
-    auto ap8 = std::make_shared<ColumnInt64>();
-    auto ap9 = std::make_shared<ColumnInt64>();
-    auto ap10 = std::make_shared<ColumnInt64>();
+    auto ap1 = std::make_shared<ColumnFloat64>();
+    auto ap2 = std::make_shared<ColumnFloat64>();
+    auto ap3 = std::make_shared<ColumnFloat64>();
+    auto ap4 = std::make_shared<ColumnFloat64>();
+    auto ap5 = std::make_shared<ColumnFloat64>();
+    auto ap6 = std::make_shared<ColumnFloat64>();
+    auto ap7 = std::make_shared<ColumnFloat64>();
+    auto ap8 = std::make_shared<ColumnFloat64>();
+    auto ap9 = std::make_shared<ColumnFloat64>();
+    auto ap10 = std::make_shared<ColumnFloat64>();
     
     auto av1 = std::make_shared<ColumnInt64>();
     auto av2 = std::make_shared<ColumnInt64>();
@@ -1307,34 +1307,34 @@ void MyClickHouse::InsertStructQTick() {
     auto av10 = std::make_shared<ColumnInt64>();   
    
     auto status = std::make_shared<ColumnInt8>();
-    auto new_price = std::make_shared<ColumnInt64>();
+    auto new_price = std::make_shared<ColumnFloat64>();
     auto new_volume = std::make_shared<ColumnInt64>();
     auto new_amount = std::make_shared<ColumnFloat64>();
     auto sum_volume = std::make_shared<ColumnInt64>();
     auto sum_amount = std::make_shared<ColumnFloat64>();
-    auto open = std::make_shared<ColumnInt64>();
-    auto high = std::make_shared<ColumnInt64>();
-    auto low = std::make_shared<ColumnInt64>();
-    auto avg_bid_price = std::make_shared<ColumnInt64>();
-    auto avg_ask_price = std::make_shared<ColumnInt64>();
+    auto open = std::make_shared<ColumnFloat64>();
+    auto high = std::make_shared<ColumnFloat64>();
+    auto low = std::make_shared<ColumnFloat64>();
+    auto avg_bid_price = std::make_shared<ColumnFloat64>();
+    auto avg_ask_price = std::make_shared<ColumnFloat64>();
     auto new_bid_volume = std::make_shared<ColumnInt64>();
     auto new_bid_amount = std::make_shared<ColumnFloat64>();
     auto new_ask_volume = std::make_shared<ColumnInt64>();
     auto new_ask_amount = std::make_shared<ColumnFloat64>();
     auto open_interest = std::make_shared<ColumnInt64>();
-    auto pre_settle = std::make_shared<ColumnInt64>();
+    auto pre_settle = std::make_shared<ColumnFloat64>();
     auto pre_open_interest = std::make_shared<ColumnInt64>();
-    auto close = std::make_shared<ColumnInt64>();
-    auto settle = std::make_shared<ColumnInt64>();
+    auto close = std::make_shared<ColumnFloat64>();
+    auto settle = std::make_shared<ColumnFloat64>();
     auto multiple = std::make_shared<ColumnInt64>();
-    auto price_step = std::make_shared<ColumnInt64>();
+    auto price_step = std::make_shared<ColumnFloat64>();
     auto create_date = std::make_shared<ColumnInt32>();
     auto list_date = std::make_shared<ColumnInt32>();
     auto expire_date = std::make_shared<ColumnInt32>();
     auto start_settle_date = std::make_shared<ColumnInt32>();
     auto end_settle_date = std::make_shared<ColumnInt32>();
     auto exercise_date = std::make_shared<ColumnInt32>();
-    auto exercise_price = std::make_shared<ColumnInt64>();
+    auto exercise_price = std::make_shared<ColumnFloat64>();
     auto cp_flag = std::make_shared<ColumnInt8>();
     auto underlying_code = std::make_shared<ColumnString>();
     auto sum_bid_volume = std::make_shared<ColumnInt64>();
@@ -1354,8 +1354,9 @@ void MyClickHouse::InsertStructQTick() {
 
 
     for (auto& it : list_ticks_) {   
-//         cout << it.code<< " " << it.timestamp << " " << it.code << " " << it.pre_close << " "
-//              << it.upper_limit << " " << it.lower_limit << " " << it.new_price << " " << it.new_volume << endl;
+         cout << it.code<< " " << it.timestamp << " " << it.code << " " << it.pre_close << " "
+              << it.upper_limit << " " << it.lower_limit << " " << it.new_price << " " << it.new_volume << " "
+              << it.new_bid_volume << " " << it.new_bid_amount << " " << it.new_ask_volume << " " << it.new_ask_amount << endl;
                  
         int64_t stamp_value = it.timestamp;
           

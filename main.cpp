@@ -17,14 +17,14 @@ int main(int argc, char** argv) {
         //my->DeleteTable();
         
         // 读某个文件夹下所有
-        my->GetFileNum(file_name, date);
-        my->ReadAllPBQTick();  
+//        my->GetFileNum(file_name, date);
+//        my->ReadAllPBQTick();  
         
-        ////单独读取某个文件
-        //my->ReadStructTick(file_name);
+//        //单独读取某个文件
+        my->ReadStructTick(file_name);
         
-//        //// 读数据库
-//        my->ReadClickHouse(file_name.c_str(), date.c_str());
+        //// 读数据库
+        //my->ReadClickHouse(file_name.c_str(), date.c_str());
         
     } catch (const std::exception& e) {
         std::cerr << "exception : " << e.what() << std::endl;
